@@ -20,9 +20,9 @@ import endpoints._
 import utils.ClientUtils
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import spray.json.{ DefaultJsonProtocol, JsString, JsValue, RootJsonFormat }
+import spray.json.{DefaultJsonProtocol, JsString, JsValue, RootJsonFormat}
 
-import java.time.{ LocalDate, LocalDateTime }
+import java.time.{LocalDate, LocalDateTime}
 
 /**
  * Object containing implicit JSON formats for the Tiingo API endpoint case classes.
@@ -51,7 +51,7 @@ object JsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
     override def write(obj: LocalDateTime): JsValue = JsString(obj.toString)
   }
 
-  implicit val tickerMetaFormat: RootJsonFormat[TickerMeta] = jsonFormat(
+  implicit val tickerMetaJsonFormat: RootJsonFormat[TickerMeta] = jsonFormat(
     TickerMeta,
     "ticker",
     "name",
@@ -61,7 +61,7 @@ object JsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
     "description"
   )
 
-  implicit val eodPriceDataFormat: RootJsonFormat[EODPriceData] = jsonFormat(
+  implicit val eodPriceDataJsonFormat: RootJsonFormat[EODPriceData] = jsonFormat(
     EODPriceData,
     "date",
     "close",
@@ -78,7 +78,7 @@ object JsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
     "splitFactor"
   )
 
-  implicit val newsFormat: RootJsonFormat[News] = jsonFormat(
+  implicit val newsJsonFormat: RootJsonFormat[News] = jsonFormat(
     News,
     "id",
     "title",
@@ -91,7 +91,7 @@ object JsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
     "tags"
   )
 
-  implicit val bulkDownloadFormat: RootJsonFormat[BulkDownload] = jsonFormat(
+  implicit val bulkDownloadJsonFormat: RootJsonFormat[BulkDownload] = jsonFormat(
     BulkDownload,
     "id",
     "url",
@@ -103,7 +103,7 @@ object JsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
     "fileSizeUncompressed"
   )
 
-  implicit val cryptoPriceDataFormat: RootJsonFormat[CryptoPriceData] = jsonFormat(
+  implicit val cryptoPriceDataJsonFormat: RootJsonFormat[CryptoPriceData] = jsonFormat(
     CryptoPriceData,
     "date",
     "close",
@@ -115,7 +115,7 @@ object JsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
     "numberOfTrades"
   )
 
-  implicit val cryptoPriceFormat: RootJsonFormat[CryptoPrice] = {
+  implicit val cryptoPriceJsonFormat: RootJsonFormat[CryptoPrice] = {
     jsonFormat(
       CryptoPrice,
       "ticker",
@@ -124,7 +124,7 @@ object JsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
       "priceData"
     )
   }
-  implicit val cryptoMetaFormat: RootJsonFormat[CryptoMeta] = jsonFormat(
+  implicit val cryptoMetaJsonFormat: RootJsonFormat[CryptoMeta] = jsonFormat(
     CryptoMeta,
     "ticker",
     "name",
@@ -133,7 +133,7 @@ object JsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
     "description"
   )
 
-  implicit val fxTopDataFormat: RootJsonFormat[FXTopData] = jsonFormat(
+  implicit val fxTopDataJsonFormat: RootJsonFormat[FXTopData] = jsonFormat(
     FXTopData,
     "ticker",
     "timestamp",
@@ -144,7 +144,7 @@ object JsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
     "askPrice"
   )
 
-  implicit val fxIntradayDataFormat: RootJsonFormat[FXIntradayData] = jsonFormat(
+  implicit val fxIntradayDataJsonFormat: RootJsonFormat[FXIntradayData] = jsonFormat(
     FXIntradayData,
     "date",
     "ticker",
@@ -154,7 +154,7 @@ object JsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
     "close"
   )
 
-  implicit val iexLastPriceFormat: RootJsonFormat[IEXLastPriceData] = jsonFormat(
+  implicit val iexLastPriceJsonFormat: RootJsonFormat[IEXLastPriceData] = jsonFormat(
     IEXLastPriceData,
     "ticker",
     "timestamp",
@@ -175,7 +175,7 @@ object JsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
     "askPrice"
   )
 
-  implicit val iexHistoricalPriceData: RootJsonFormat[IEXHistoricalPriceData] =
+  implicit val iexHistoricalJsonPriceData: RootJsonFormat[IEXHistoricalPriceData] =
     jsonFormat(
       IEXHistoricalPriceData,
       "date",
@@ -186,7 +186,7 @@ object JsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
       "volume"
     )
 
-  implicit val definitionFormat: RootJsonFormat[Definition] =
+  implicit val definitionJsonFormat: RootJsonFormat[Definition] =
     jsonFormat(
       Definition,
       "dataCode",
@@ -196,14 +196,14 @@ object JsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
       "units"
     )
 
-  implicit val statementDataFieldFormat: RootJsonFormat[StatementDataField] =
+  implicit val statementDataFieldJsonFormat: RootJsonFormat[StatementDataField] =
     jsonFormat(
       StatementDataField,
       "dataCode",
       "value"
     )
 
-  implicit val statementDataFormat: RootJsonFormat[StatementData] = jsonFormat(
+  implicit val statementDataJsonFormat: RootJsonFormat[StatementData] = jsonFormat(
     StatementData,
     "date",
     "quarter",
@@ -211,7 +211,7 @@ object JsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
     "statementData"
   )
 
-  implicit val dailyMetricsFormat: RootJsonFormat[DailyMetrics] =
+  implicit val dailyMetricsJsonFormat: RootJsonFormat[DailyMetrics] =
     jsonFormat(
       DailyMetrics,
       "date",
@@ -222,7 +222,7 @@ object JsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
       "trailingPEG1Y"
     )
 
-  implicit val fundamentalsMetaFormat: RootJsonFormat[FundamentalsMeta] =
+  implicit val fundamentalsMetaJsonFormat: RootJsonFormat[FundamentalsMeta] =
     jsonFormat(
       FundamentalsMeta,
       "permaTicker",

@@ -36,17 +36,24 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.BeforeAndAfterAll
 
+import java.time.LocalDate
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
 class EODEndpointSpec extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
+
+  import models.APIConfig
+
   implicit val system: ActorSystem  = ActorSystem("EODClientSpec")
   implicit val ec: ExecutionContext = system.dispatcher
 
-  val config = TiingoConfig(sys.env.get("TIINGO_API_KEY"), timeout = 30.seconds)
+  val config = APIConfig(sys.env.get("TIINGO_API_KEY"), timeout = 30.seconds)
   val client = EODEndpoint(config)
 
   val ticker = "GOOGL"
+
+  override def afterAll(): Unit =
+    client.shutdown()
 
   behavior of "EODClientSpec"
 
@@ -54,4 +61,23 @@ class EODEndpointSpec extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
     client.getTickerMeta(ticker).onComplete(println)
   }
 
+  it should "get the metadata of the specified ticker" in {
+    client.getTickerMeta(ticker).map(_.ticker shouldBe ticker)
+  }
+
+  it should "get the historical prices of the ticker" in {
+    client
+      .getHistoricalEODPriceData(
+        ticker,
+        Some(LocalDate.of(2020, 1, 1)),
+        Some(LocalDate.of(2020, 1, 31))
+      )
+      .map(_.length shouldBe 21)
+  }
+
+  it should "get the latest prices of the ticker" in {
+    client
+      .getLatestEODPriceData(ticker)
+      .map(_.date.toLocalDate.isBefore(LocalDate.now()) shouldBe true)
+  }
 }

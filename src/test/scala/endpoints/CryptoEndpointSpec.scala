@@ -31,6 +31,34 @@
 package io.github.crotodev.tiingo
 package endpoints
 
+import akka.actor.ActorSystem
 import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.BeforeAndAfterAll
 
-class CryptoEndpointSpec extends AnyFlatSpec {}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.duration._
+
+class CryptoEndpointSpec extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
+
+  import models.APIConfig
+
+  implicit val system: ActorSystem  = ActorSystem("CryptoEndpointSpec")
+  implicit val ec: ExecutionContext = system.dispatcher
+
+  val config = APIConfig(sys.env.get("TIINGO_API_KEY"), timeout = 30.seconds)
+  val client = CryptoEndpoint(config)
+
+  val ticker = "btcusd"
+
+  override def afterAll(): Unit =
+    client.shutdown()
+
+  "getLatestCryptoPrice" should "return the latest crypto price" in {
+    val result = client.getLatestCryptoData(Some(List(ticker)))
+  }
+
+  "getCryptoMeta" should "return the crypto meta" in {
+    val result = client.getCryptoMeta(Some(List(ticker)))
+  }
+}
