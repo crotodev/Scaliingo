@@ -11,10 +11,12 @@ import scala.concurrent.ExecutionContext
 
 class IEXEndpointSpec extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
 
-  implicit val system: ActorSystem  = ActorSystem("EODClientSpec")
+  import models.APIConfig
+
+  implicit val system: ActorSystem = ActorSystem("EODClientSpec")
   implicit val ec: ExecutionContext = system.dispatcher
 
-  val config = TiingoConfig(sys.env.get("TIINGO_API_KEY"), timeout = 30.seconds)
+  val config = APIConfig(sys.env.get("TIINGO_API_KEY"), timeout = 30.seconds)
   val client = IEXEndpoint(config)
 
   val ticker = "GOOGL"
@@ -22,9 +24,9 @@ class IEXEndpointSpec extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
 //  override def afterAll(): Unit =
 //    client.shutdown()
 
-  behavior of "IEXClientSpec"
+  behavior.of("IEXClientSpec")
 
-  it should "getIEXLastPriceData" in {
-    client.getIEXLastPriceData(Some(ticker)).onComplete(println)
+  it should "fetchIEXLastPriceData" in {
+    client.fetchIEXLastPriceData(Some(ticker)).onComplete(println)
   }
 }

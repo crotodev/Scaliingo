@@ -17,6 +17,8 @@
 package io.github.crotodev.tiingo
 package endpoints
 
+import models.APIConfig
+
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.Materializer
@@ -29,15 +31,14 @@ import scala.concurrent.ExecutionContext
  */
 trait Endpoint {
 
-  protected val logger = LoggerFactory.getLogger(getClass)
+  val config: APIConfig
 
   implicit val system: ActorSystem
 
   implicit val materializer: Materializer
 
   implicit val ec: ExecutionContext
-
-  val config: TiingoConfig
+  protected val logger = LoggerFactory.getLogger(getClass)
 
   /**
    * Shuts down all connection pools and terminates the actor system.

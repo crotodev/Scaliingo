@@ -17,13 +17,12 @@
 package io.github.crotodev.tiingo
 package endpoints
 
-import utils.ClientUtils
 import JsonProtocol._
+import models.APIConfig
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
-import io.github.crotodev.utils.HasMetaData
 import io.github.crotodev.utils.HttpUtils._
 
 import java.time.{LocalDate, LocalDateTime}
@@ -39,15 +38,12 @@ import scala.concurrent.{ExecutionContext, Future}
  * @param units The units of the data.
  */
 case class Definition(
-    dataCode: String,
-    name: String,
-    description: String,
-    statementType: String,
-    units: String
-) extends HasMetaData {
-  override def toString: String =
-    s"Definition($dataCode, $name, $description, $statementType, $units)"
-}
+  dataCode: String,
+  name: String,
+  description: String,
+  statementType: String,
+  units: String
+)
 
 /**
  * Case class representing a data field in a financial statement.
@@ -66,14 +62,11 @@ case class StatementDataField(dataCode: String, value: Double)
  * @param statementData The statement data.
  */
 case class StatementData(
-    date: LocalDateTime,
-    quarter: Int,
-    year: Int,
-    statementData: StatementDataField
-) extends HasMetaData {
-  override def toString: String =
-    s"StatementData($date, $quarter, $year, $statementData)"
-}
+  date: LocalDateTime,
+  quarter: Int,
+  year: Int,
+  statementData: StatementDataField
+)
 
 /**
  * Case class representing daily metrics for a stock.
@@ -86,16 +79,13 @@ case class StatementData(
  * @param trailingPEG1Y The trailing PEG over 1 year.
  */
 case class DailyMetrics(
-    date: LocalDateTime,
-    marketCap: Double,
-    enterpriseVal: Double,
-    peRatio: Double,
-    pbRatio: Double,
-    trailingPEG1Y: Double
-) extends HasMetaData {
-  override def toString: String =
-    s"DailyMetrics($date, $marketCap, $enterpriseVal, $peRatio, $pbRatio, $trailingPEG1Y)"
-}
+  date: LocalDateTime,
+  marketCap: Double,
+  enterpriseVal: Double,
+  peRatio: Double,
+  pbRatio: Double,
+  trailingPEG1Y: Double
+)
 
 /**
  * Case class representing meta data for a company's fundamentals.
@@ -118,42 +108,39 @@ case class DailyMetrics(
  * @param dailyLastUpdated The date when the company's daily data was last updated.
  */
 case class FundamentalsMeta(
-    permaTicker: String,
-    ticker: String,
-    name: String,
-    isActive: Boolean,
-    isADR: Boolean,
-    sector: String,
-    industry: String,
-    sicCode: Int,
-    sicSector: String,
-    sicIndustry: String,
-    reportingCurrency: String,
-    location: String,
-    companyWebsite: String,
-    secFilingWebsite: String,
-    statementLastUpdated: LocalDateTime,
-    dailyLastUpdated: LocalDateTime
-) extends HasMetaData {
-  override def toString: String =
-    s"FundamentalsMeta($permaTicker, $ticker, $name, $isActive, $isADR, $sector, $industry, $sicCode, $sicSector, $sicIndustry, $reportingCurrency, $location, $companyWebsite, $secFilingWebsite, $statementLastUpdated, $dailyLastUpdated)"
-}
+  permaTicker: String,
+  ticker: String,
+  name: String,
+  isActive: Boolean,
+  isADR: Boolean,
+  sector: String,
+  industry: String,
+  sicCode: Int,
+  sicSector: String,
+  sicIndustry: String,
+  reportingCurrency: String,
+  location: String,
+  companyWebsite: String,
+  secFilingWebsite: String,
+  statementLastUpdated: LocalDateTime,
+  dailyLastUpdated: LocalDateTime
+)
 
 /**
  * Trait for the Tiingo APIs Fundamentals endpoint.
  */
-trait FundamentalsClient extends Endpoint {
+trait FundamentalsEndpoint extends Endpoint {
 
   /**
    * Fetches the definitions of financial metrics.
    *
    * @return A future of a list of definitions.
    */
-  def getDefinitions: Future[List[Definition]] = {
+  def fetchDefinitions: Future[List[Definition]] = {
     val url: Uri = "https://api.tiingo.com/tiingo/fundamentals/definitions"
     val urlWithQuery = url.withQuery(
       Uri.Query(
-        "token" -> config.apiKey.getOrElse(ClientUtils.sanitizeApiKey(None))
+        "token" -> config.apiKey.get
       )
     )
     logger.debug(s"Sending request to $url")
@@ -173,33 +160,33 @@ trait FundamentalsClient extends Endpoint {
    * @param endDate   The end date for the data.
    * @return A future of a list of statement data.
    */
-  def getStatementData(
-      ticker: String,
-      startDate: Option[LocalDate] = None,
-      endDate: Option[LocalDate] = None
+  def fetchStatementData(
+    ticker: String,
+    startDate: Option[LocalDate] = None,
+    endDate: Option[LocalDate] = None
   ): Future[List[StatementData]] = {
     val url: Uri = s"https://api.tiingo.com/tiingo/$ticker/fundamentals/statements"
-    val key      = config.apiKey.getOrElse(ClientUtils.sanitizeApiKey(None))
+    val key = config.apiKey.get
     val urlWithQuery = (startDate, endDate) match {
       case (Some(start), Some(end)) =>
         url.withQuery(
           Uri.Query(
-            "token"     -> key,
+            "token" -> key,
             "startDate" -> start.toString,
-            "endDate"   -> end.toString
+            "endDate" -> end.toString
           )
         )
       case (Some(start), None) =>
         url.withQuery(
           Uri.Query(
-            "token"     -> key,
+            "token" -> key,
             "startDate" -> start.toString
           )
         )
       case (None, Some(end)) =>
         url.withQuery(
           Uri.Query(
-            "token"   -> key,
+            "token" -> key,
             "endDate" -> end.toString
           )
         )
@@ -220,9 +207,9 @@ trait FundamentalsClient extends Endpoint {
    * @param ticker The ticker symbol.
    * @return A future of daily metrics.
    */
-  def getDailyMetrics(ticker: String): Future[DailyMetrics] = {
+  def fetchDailyMetrics(ticker: String): Future[DailyMetrics] = {
     val url: Uri = s"https://api.tiingo.com/tiingo/fundamentals/$ticker/daily"
-    val key      = config.apiKey.getOrElse(ClientUtils.sanitizeApiKey(None))
+    val key = config.apiKey.get
     val urlWithQuery = url.withQuery(
       Uri.Query("token" -> key)
     )
@@ -240,9 +227,9 @@ trait FundamentalsClient extends Endpoint {
    *
    * @return A future of a list of fundamentals meta data.
    */
-  def getFundamentalsMeta: Future[List[FundamentalsMeta]] = {
+  def fetchFundamentalsMeta: Future[List[FundamentalsMeta]] = {
     val url: Uri = "https://api.tiingo.com/tiingo/fundamentals/meta"
-    val key      = config.apiKey.getOrElse(ClientUtils.sanitizeApiKey(None))
+    val key = config.apiKey.get
     val urlWithQuery = url.withQuery(
       Uri.Query("token" -> key)
     )
@@ -257,23 +244,23 @@ trait FundamentalsClient extends Endpoint {
 }
 
 /**
- * The companion object for creating instances of FundamentalsClient.
+ * The companion object for creating instances of FundamentalsEndpoint.
  */
-object FundamentalsClient {
+object FundamentalsEndpoint {
 
   /**
-   * The companion object for creating instances of FundamentalsClient.
+   * The companion object for creating instances of FundamentalsEndpoint.
    *
    * @param conf The configuration.
    * @param sys  The actor system.
-   * @return A new FundamentalsClient.
+   * @return A new FundamentalsEndpoint.
    */
-  def apply(conf: TiingoConfig)(implicit sys: ActorSystem): FundamentalsClient =
-    new FundamentalsClient {
-      override val config: TiingoConfig                = conf
-      val system: ActorSystem                          = sys
-      override implicit val materializer: Materializer = Materializer(system)
-      override implicit val ec: ExecutionContext =
+  def apply(conf: APIConfig)(implicit sys: ActorSystem): FundamentalsEndpoint =
+    new FundamentalsEndpoint {
+      override val config: APIConfig = conf
+      val system: ActorSystem = sys
+      implicit override val materializer: Materializer = Materializer(system)
+      implicit override val ec: ExecutionContext =
         system.dispatcher
     }
 }

@@ -1,4 +1,4 @@
-val akkaVersion     = "2.8.0"
+val akkaVersion = "2.8.0"
 val akkaHttpVersion = "10.5.1"
 
 lazy val root = (project in file("."))
@@ -12,16 +12,16 @@ lazy val root = (project in file("."))
     startYear := Some(2023),
     idePackagePrefix := Some("io.github.crotodev.tiingo"),
     libraryDependencies ++= Seq(
-      "com.joestelmach"   % "natty"                     % "0.13",
-      "com.typesafe"      % "config"                    % "1.4.2",
-      "ch.qos.logback"    % "logback-classic"           % "1.4.7",
-      "com.typesafe.akka" %% "akka-stream"              % akkaVersion,
-      "com.typesafe.akka" %% "akka-http"                % akkaHttpVersion,
-      "com.typesafe.akka" %% "akka-http-spray-json"     % akkaHttpVersion,
-      "com.typesafe.akka" %% "akka-http-testkit"        % akkaHttpVersion % Test,
+      "org.typelevel" %% "cats-core" % "2.9.0",
+      "com.typesafe" % "config" % "1.4.2",
+      "ch.qos.logback" % "logback-classic" % "1.4.7",
+      "com.typesafe.akka" %% "akka-stream" % akkaVersion,
+      "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
+      "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
+      "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion % Test,
       "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaVersion % Test,
-      "com.typesafe.akka" %% "akka-stream-testkit"      % akkaVersion % Test,
-      "org.scalatest"     %% "scalatest"                % "3.2.15" % Test
+      "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion % Test,
+      "org.scalatest" %% "scalatest" % "3.2.15" % Test
     ),
     scalacOptions ++= Seq(
       "-deprecation",
@@ -43,7 +43,6 @@ lazy val root = (project in file("."))
     onChangedBuildSource := ReloadOnSourceChanges,
     excludeLintKeys += idePackagePrefix,
     sbtPlugin := true,
-    publishMavenStyle := true,
-
+    publishMavenStyle := true
   )
-  .dependsOn(RootProject(uri("https://github.com/crotodev/utils-sc.git")))
+  .dependsOn(RootProject(uri("https://github.com/crotodev/utils-sc.git#45c1522fd2ec9ec86dec807604710641677138ce")))

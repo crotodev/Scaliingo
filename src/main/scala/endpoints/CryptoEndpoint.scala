@@ -17,13 +17,12 @@
 package io.github.crotodev.tiingo
 package endpoints
 
-import utils.ClientUtils
 import JsonProtocol._
+import models.APIConfig
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
-import io.github.crotodev.utils.HasMetaData
 import io.github.crotodev.utils.HttpUtils._
 
 import java.time.LocalDateTime
@@ -42,14 +41,14 @@ import scala.concurrent.{ExecutionContext, Future}
  * @param volumeNotional The notional volume of the trades.
  */
 case class CryptoPriceData(
-    date: LocalDateTime,
-    open: Double,
-    high: Double,
-    low: Double,
-    close: Double,
-    tradesDone: Double,
-    volume: Double,
-    volumeNotional: Double
+  date: LocalDateTime,
+  open: Double,
+  high: Double,
+  low: Double,
+  close: Double,
+  tradesDone: Double,
+  volume: Double,
+  volumeNotional: Double
 )
 
 /**
@@ -61,14 +60,11 @@ case class CryptoPriceData(
  * @param priceData The list of crypto price data.
  */
 case class CryptoPrice(
-    ticker: String,
-    baseCurrency: String,
-    quoteCurrency: String,
-    priceData: List[CryptoPriceData]
-) extends HasMetaData {
-  override def toString: String =
-    s"CryptoPrice($ticker, $baseCurrency, $quoteCurrency, $priceData)"
-}
+  ticker: String,
+  baseCurrency: String,
+  quoteCurrency: String,
+  priceData: List[CryptoPriceData]
+)
 
 /**
  * Represents the metadata of a crypto currency.
@@ -80,15 +76,12 @@ case class CryptoPrice(
  * @param description The description of the crypto currency.
  */
 case class CryptoMeta(
-    ticker: String,
-    name: Option[String],
-    baseCurrency: String,
-    quoteCurrency: String,
-    description: Option[String]
-) extends HasMetaData {
-  override def toString: String =
-    s"CryptoMeta($ticker, $name, $baseCurrency, $quoteCurrency, $description)"
-}
+  ticker: String,
+  name: Option[String],
+  baseCurrency: String,
+  quoteCurrency: String,
+  description: Option[String]
+)
 
 /**
  * Trait for the Tiingo APIs Crypto endpoint.
@@ -103,11 +96,12 @@ trait CryptoEndpoint extends Endpoint {
    * @param tickers The optional list of tickers to fetch data for.
    * @return The future of the list of crypto prices.
    */
-  def getLatestCryptoData(
-      tickers: Option[List[String]] = None
+  def fetchLatestCryptoData(
+    tickers: Option[List[String]] = None
   ): Future[List[CryptoPrice]] = {
+
     val url: Uri = s"$baseUrl/prices"
-    val key      = config.apiKey.getOrElse(ClientUtils.sanitizeApiKey(None))
+    val key = config.apiKey.get
 
     val urlWithQuery = tickers match {
       case Some(t) =>
@@ -129,11 +123,11 @@ trait CryptoEndpoint extends Endpoint {
    * @param tickers The optional list of tickers to fetch metadata for.
    * @return The future of the list of crypto metadata.
    */
-  def getCryptoMeta(
-      tickers: Option[List[String]] = None
+  def fetchCryptoMeta(
+    tickers: Option[List[String]] = None
   ): Future[List[CryptoMeta]] = {
     val url: Uri = s"$baseUrl"
-    val key      = config.apiKey.getOrElse(ClientUtils.sanitizeApiKey(None))
+    val key = config.apiKey.get
 
     val urlWithQuery = tickers match {
       case Some(t) =>
@@ -158,12 +152,12 @@ object CryptoEndpoint {
    * @param sys The ActorSystem instance.
    * @return The new instance of CryptoEndpoint.
    */
-  def apply(conf: TiingoConfig)(implicit sys: ActorSystem): CryptoEndpoint =
+  def apply(conf: APIConfig)(implicit sys: ActorSystem): CryptoEndpoint =
     new CryptoEndpoint {
-      override val config: TiingoConfig                = conf
-      val system: ActorSystem                          = sys
-      override implicit val materializer: Materializer = Materializer(system)
-      override implicit val ec: ExecutionContext =
+      override val config: APIConfig = conf
+      val system: ActorSystem = sys
+      implicit override val materializer: Materializer = Materializer(system)
+      implicit override val ec: ExecutionContext =
         system.dispatcher
     }
 }

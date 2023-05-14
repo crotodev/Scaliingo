@@ -16,17 +16,17 @@
 
 package io.github.crotodev.tiingo
 package endpoints
-import utils.ClientUtils
+
 import JsonProtocol._
+import models.APIConfig
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
-import io.github.crotodev.utils.HasMetaData
 import io.github.crotodev.utils.HttpUtils._
 
-import java.time.{ LocalDate, LocalDateTime }
-import scala.concurrent.{ ExecutionContext, Future }
+import java.time.{LocalDate, LocalDateTime}
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * The case class representing the data structure for the top forex data.
@@ -40,17 +40,14 @@ import scala.concurrent.{ ExecutionContext, Future }
  * @param askPrice the price of the ask.
  */
 case class FXTopData(
-    ticker: String,
-    timestamp: LocalDateTime,
-    midPrice: Double,
-    bidSize: Double,
-    bidPrice: Double,
-    askSize: Double,
-    askPrice: Double
-) extends HasMetaData {
-  override def toString: String =
-    s"FXTopData($ticker, $timestamp, $midPrice, $bidSize, $bidPrice, $askSize, $askPrice)"
-}
+  ticker: String,
+  timestamp: LocalDateTime,
+  midPrice: Double,
+  bidSize: Double,
+  bidPrice: Double,
+  askSize: Double,
+  askPrice: Double
+)
 
 /**
  * The case class representing the data structure for the intraday forex data.
@@ -62,17 +59,7 @@ case class FXTopData(
  * @param low the lowest price of the forex.
  * @param close the closing price of the forex.
  */
-case class FXIntradayData(
-    date: LocalDateTime,
-    ticker: String,
-    open: Double,
-    high: Double,
-    low: Double,
-    close: Double
-) extends HasMetaData {
-  override def toString: String =
-    s"FXIntradayData($date, $ticker, $open, $high, $low, $close)"
-}
+case class FXIntradayData(date: LocalDateTime, ticker: String, open: Double, high: Double, low: Double, close: Double)
 
 /**
  * Trait for the Tiingo APIs Forex endpoint.
@@ -87,14 +74,14 @@ trait FXEndpoint extends Endpoint {
    * @param tickers the list of forex ticker symbols to fetch data for.
    * @return a future of the top forex data.
    */
-  def getFXTopData(tickers: List[String]): Future[FXTopData] = {
+  def fetchFXTopData(tickers: List[String]): Future[FXTopData] = {
 
     val url: Uri = s"$baseUri/top"
-    val key      = config.apiKey.getOrElse(ClientUtils.sanitizeApiKey(None))
+    val key = config.apiKey.get
     val urlWithQuery = url.withQuery(
       Uri.Query(
         "tickers" -> tickers.mkString(","),
-        "token"   -> key
+        "token" -> key
       )
     )
     logger.debug(s"Sending request to $url")
@@ -110,22 +97,20 @@ trait FXEndpoint extends Endpoint {
    * @param frequency the frequency of the data.
    * @return a future of the intraday forex data.
    */
-  def getFXIntradayData(
-      ticker: String,
-      startDate: Option[LocalDate] = None,
-      frequency: Option[String] = None
+  def fetchFXIntradayData(
+    ticker: String,
+    startDate: Option[LocalDate] = None,
+    frequency: Option[String] = None
   ): Future[FXIntradayData] = {
 
-    val freq = ClientUtils.sanitizeFreq(frequency)
     val url: Uri =
       s"https://api.tiingo.com/tiingo/fx/$ticker/prices"
-    val key = config.apiKey.getOrElse(ClientUtils.sanitizeApiKey(None))
+    val key = config.apiKey.get
 
-    val start = ClientUtils.sanitizeStartDate(startDate)
     val params: Map[String, String] = startDate match {
       case Some(_) =>
-        Map("startDate" -> start.toString, "resampleFreq" -> freq, "token" -> key)
-      case None => Map("resampleFreq" -> freq, "token" -> key)
+        Map("startDate" -> startDate.get.toString, "resampleFreq" -> frequency.get, "token" -> key)
+      case None => Map("resampleFreq" -> frequency.get, "token" -> key)
     }
     val urlWithQuery = url.withQuery(
       Uri.Query(
@@ -154,12 +139,12 @@ object FXEndpoint {
    * @param sys  the actor system for the client.
    * @return a new instance of the FxEndpoint.
    */
-  def apply(conf: TiingoConfig)(implicit sys: ActorSystem): FXEndpoint =
+  def apply(conf: APIConfig)(implicit sys: ActorSystem): FXEndpoint =
     new FXEndpoint {
-      override val config: TiingoConfig                = conf
-      val system: ActorSystem                          = sys
-      override implicit val materializer: Materializer = Materializer(system)
-      override implicit val ec: ExecutionContext =
+      override val config: APIConfig = conf
+      val system: ActorSystem = sys
+      implicit override val materializer: Materializer = Materializer(system)
+      implicit override val ec: ExecutionContext =
         system.dispatcher
     }
 }

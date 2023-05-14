@@ -18,12 +18,11 @@ package io.github.crotodev.tiingo
 package endpoints
 
 import JsonProtocol._
-import utils.ClientUtils
+import models.APIConfig
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
-import io.github.crotodev.utils.HasMetaData
 import io.github.crotodev.utils.HttpUtils._
 
 import java.time.{LocalDate, LocalDateTime}
@@ -40,16 +39,13 @@ import scala.concurrent.{ExecutionContext, Future}
  * @param description The description of the ticker.
  */
 case class TickerMeta(
-    ticker: String,
-    name: String,
-    exchangeCode: String,
-    startDate: LocalDateTime,
-    endDate: LocalDateTime,
-    description: String
-) extends HasMetaData {
-  override def toString: String =
-    s"TickerMeta($ticker, $name, $exchangeCode, $startDate, $endDate, $description)"
-}
+  ticker: String,
+  name: String,
+  exchangeCode: String,
+  startDate: LocalDateTime,
+  endDate: LocalDateTime,
+  description: String
+)
 
 /**
  * Represents the end of day price data.
@@ -69,36 +65,33 @@ case class TickerMeta(
  * @param splitFactor The split factor.
  */
 case class EODPriceData(
-    date: LocalDateTime,
-    close: Double,
-    high: Double,
-    low: Double,
-    open: Double,
-    volume: Long,
-    adjClose: Double,
-    adjHigh: Double,
-    adjLow: Double,
-    adjOpen: Double,
-    adjVolume: Long,
-    divCash: Double,
-    splitFactor: Double
-) extends HasMetaData {
-  override def toString: String =
-    s"EODPriceData($date, $close, $high, $low, $open, $volume, $adjClose, $adjHigh, $adjLow, $adjOpen, $adjVolume, $divCash, $splitFactor)"
-}
+  date: LocalDateTime,
+  close: Double,
+  high: Double,
+  low: Double,
+  open: Double,
+  volume: Long,
+  adjClose: Double,
+  adjHigh: Double,
+  adjLow: Double,
+  adjOpen: Double,
+  adjVolume: Long,
+  divCash: Double,
+  splitFactor: Double
+)
 
 /**
  *  Trait for the Tiingo APIs End-of-Day endpoint.
  */
 trait EODEndpoint extends Endpoint {
 
-  def getTickerMeta(
-      ticker: String
+  def fetchTickerMeta(
+    ticker: String
   ): Future[TickerMeta] = {
     val url: Uri = s"https://api.tiingo.com/tiingo/daily/$ticker"
     val urlWithQuery = url.withQuery(
       Uri.Query(
-        "token" -> config.apiKey.getOrElse(ClientUtils.sanitizeApiKey(None))
+        "token" -> config.apiKey.get
       )
     )
     logger.debug(s"Sending request to $url")
@@ -116,11 +109,11 @@ trait EODEndpoint extends Endpoint {
    * @param ticker The ticker symbol.
    * @return The future of the ticker metadata.
    */
-  def getLatestTickerData(ticker: String): Future[EODPriceData] = {
+  def fetchLatestTickerData(ticker: String): Future[EODPriceData] = {
     val url: Uri = s"https://api.tiingo.com/tiingo/daily/$ticker/prices"
     val urlWithQuery = url.withQuery(
       Uri.Query(
-        "token" -> config.apiKey.getOrElse(ClientUtils.sanitizeApiKey(None))
+        "token" -> config.apiKey.get
       )
     )
     logger.info(s"Sending request to $url")
@@ -140,18 +133,17 @@ trait EODEndpoint extends Endpoint {
    * @param endDate   The optional end date.
    * @return The future of the list of end of day price data.
    */
-  def getHistoricalTickerData(
-      ticker: String,
-      startDate: Option[LocalDate] = None,
-      endDate: Option[LocalDate] = None
+  def fetchHistoricalTickerData(
+    ticker: String,
+    startDate: Option[LocalDate] = None,
+    endDate: Option[LocalDate] = None
   ): Future[List[EODPriceData]] = {
-    val (start, end) = ClientUtils.sanitizeDates(startDate, endDate)
 
     val url: Uri =
-      s"https://api.tiingo.com/tiingo/daily/$ticker/prices?startDate=$start&endDate=$end"
+      s"https://api.tiingo.com/tiingo/daily/$ticker/prices?startDate=${startDate.get}&endDate=${endDate.get}"
     val urlWithQuery = url.withQuery(
       Uri.Query(
-        "token" -> config.apiKey.getOrElse(ClientUtils.sanitizeApiKey(None))
+        "token" -> config.apiKey.get
       )
     )
     logger.debug(s"Sending request to $url")
@@ -177,12 +169,12 @@ object EODEndpoint {
    * @param sys  The ActorSystem instance.
    * @return The new instance of EODEndpoint.
    */
-  def apply(conf: TiingoConfig)(implicit sys: ActorSystem): EODEndpoint =
+  def apply(conf: APIConfig)(implicit sys: ActorSystem): EODEndpoint =
     new EODEndpoint {
-      override val config: TiingoConfig                = conf
-      val system: ActorSystem                          = sys
-      override implicit val materializer: Materializer = Materializer(system)
-      override implicit val ec: ExecutionContext =
+      override val config: APIConfig = conf
+      val system: ActorSystem = sys
+      implicit override val materializer: Materializer = Materializer(system)
+      implicit override val ec: ExecutionContext =
         system.dispatcher
     }
 }

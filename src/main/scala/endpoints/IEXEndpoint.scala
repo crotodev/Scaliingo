@@ -17,13 +17,12 @@
 package io.github.crotodev.tiingo
 package endpoints
 
-import utils.ClientUtils
 import JsonProtocol._
+import models.APIConfig
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
-import io.github.crotodev.utils.HasMetaData
 import io.github.crotodev.utils.HttpUtils._
 
 import java.time.LocalDateTime
@@ -51,24 +50,24 @@ import scala.concurrent.{ExecutionContext, Future}
  * @param askPrice the ask price.
  */
 case class IEXLastPriceData(
-    ticker: String,
-    timestamp: LocalDateTime,
-    quoteTimestamp: LocalDateTime,
-    lastSaleTimestamp: LocalDateTime,
-    last: Double,
-    lastSize: Option[Int],
-    tngoLast: Double,
-    prevClose: Double,
-    open: Double,
-    high: Double,
-    low: Double,
-    mid: Double,
-    volume: Int,
-    bidSize: Option[Int],
-    bidPrice: Double,
-    askSize: Option[Int],
-    askPrice: Double
-) extends HasMetaData
+  ticker: String,
+  timestamp: LocalDateTime,
+  quoteTimestamp: LocalDateTime,
+  lastSaleTimestamp: LocalDateTime,
+  last: Double,
+  lastSize: Option[Int],
+  tngoLast: Double,
+  prevClose: Double,
+  open: Double,
+  high: Double,
+  low: Double,
+  mid: Double,
+  volume: Int,
+  bidSize: Option[Int],
+  bidPrice: Double,
+  askSize: Option[Int],
+  askPrice: Double
+)
 
 /**
  * Case class representing the historical price data from IEX.
@@ -81,13 +80,13 @@ case class IEXLastPriceData(
  * @param volume the volume of trades.
  */
 case class IEXHistoricalPriceData(
-    date: LocalDateTime,
-    open: Double,
-    high: Double,
-    low: Double,
-    close: Double,
-    volume: Int
-) extends HasMetaData
+  date: LocalDateTime,
+  open: Double,
+  high: Double,
+  low: Double,
+  close: Double,
+  volume: Int
+)
 
 /**
  * Trait for the Tiingo APIs IEX endpoint.
@@ -102,8 +101,8 @@ trait IEXEndpoint extends Endpoint {
    * @param ticker the ticker symbol. If not provided, data for all tickers will be retrieved.
    * @return a future list of IEXLastPriceData.
    */
-  def getIEXLastPriceData(
-      ticker: Option[String] = None
+  def fetchIEXLastPriceData(
+    ticker: Option[String] = None
   ): Future[List[IEXLastPriceData]] = {
     val url: Uri = ticker match {
       case Some(t) => s"https://api.tiingo.com/iex/$t"
@@ -111,7 +110,7 @@ trait IEXEndpoint extends Endpoint {
     }
     val urlWithQuery = url.withQuery(
       Uri.Query(
-        "token" -> config.apiKey.getOrElse(ClientUtils.sanitizeApiKey(None))
+        "token" -> config.apiKey.get
       )
     )
     logger.debug(s"Sending request to $url")
@@ -132,19 +131,19 @@ trait IEXEndpoint extends Endpoint {
    * @param frequency the frequency of the historical data. If not provided, the default frequency will be used.
    * @return a future list of IEXHistoricalPriceData.
    */
-  def getIEXHistoricalPriceData(
-      ticker: String,
-      startDate: Option[String] = None,
-      endDate: Option[String] = None,
-      frequency: Option[String] = None
+  def fetchIEXHistoricalPriceData(
+    ticker: String,
+    startDate: Option[String] = None,
+    endDate: Option[String] = None,
+    frequency: Option[String] = None
   ): Future[List[IEXHistoricalPriceData]] = {
     val url: Uri = s"https://api.tiingo.com/iex/$ticker/prices"
-    val key      = config.apiKey.getOrElse(ClientUtils.sanitizeApiKey(None))
+    val key = config.apiKey.get
     val urlWithQuery = url.withQuery(
       Uri.Query(
-        "token"        -> key,
-        "startDate"    -> startDate.getOrElse(""),
-        "endDate"      -> endDate.getOrElse(""),
+        "token" -> key,
+        "startDate" -> startDate.getOrElse(""),
+        "endDate" -> endDate.getOrElse(""),
         "resampleFreq" -> frequency.getOrElse("")
       )
     )
@@ -170,12 +169,12 @@ object IEXEndpoint {
    * @param sys  the implicit actor system.
    * @return a new IEXEndpoint instance.
    */
-  def apply(conf: TiingoConfig)(implicit sys: ActorSystem): IEXEndpoint =
+  def apply(conf: APIConfig)(implicit sys: ActorSystem): IEXEndpoint =
     new IEXEndpoint {
-      override val config: TiingoConfig                = conf
-      val system: ActorSystem                          = sys
-      override implicit val materializer: Materializer = Materializer(system)
-      override implicit val ec: ExecutionContext =
+      override val config: APIConfig = conf
+      val system: ActorSystem = sys
+      implicit override val materializer: Materializer = Materializer(system)
+      implicit override val ec: ExecutionContext =
         system.dispatcher
     }
 }

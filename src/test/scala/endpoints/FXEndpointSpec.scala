@@ -3,5 +3,4 @@ package endpoints
 
 import org.scalatest.flatspec.AnyFlatSpec
 
-class FXEndpointSpec extends AnyFlatSpec {
-}
+class FXEndpointSpec extends AnyFlatSpec {}

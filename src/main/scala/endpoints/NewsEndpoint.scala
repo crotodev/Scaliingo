@@ -17,17 +17,16 @@
 package io.github.crotodev.tiingo
 package endpoints
 
-import utils.ClientUtils
 import JsonProtocol._
+import models.APIConfig
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
-import io.github.crotodev.utils.HasMetaData
 import io.github.crotodev.utils.HttpUtils._
 
 import java.time.LocalDateTime
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * The case class representing the data structure for news data.
@@ -43,19 +42,16 @@ import scala.concurrent.{ ExecutionContext, Future }
  * @param tags the list of tags associated with the news.
  */
 case class News(
-    id: Int,
-    title: String,
-    url: String,
-    description: String,
-    publishedDate: LocalDateTime,
-    crawlDate: LocalDateTime,
-    source: String,
-    tickers: List[String],
-    tags: List[String]
-) extends HasMetaData {
-  override def toString: String =
-    s"News($id, $title, $url, $description, $publishedDate, $crawlDate, $source, $tickers, $tags)"
-}
+  id: Int,
+  title: String,
+  url: String,
+  description: String,
+  publishedDate: LocalDateTime,
+  crawlDate: LocalDateTime,
+  source: String,
+  tickers: List[String],
+  tags: List[String]
+)
 
 /**
  * The case class representing the data structure for the bulk download data.
@@ -70,18 +66,15 @@ case class News(
  * @param fileSizeUncompressed the file size uncompressed of the bulk download.
  */
 case class BulkDownload(
-    id: Int,
-    url: String,
-    filename: String,
-    batchType: String,
-    startDate: LocalDateTime,
-    endDate: LocalDateTime,
-    fileSizeCompressed: Int,
-    fileSizeUncompressed: Int
-) extends HasMetaData {
-  override def toString: String =
-    s"BulkDownload($id, $url, $filename, $batchType, $startDate, $endDate, $fileSizeCompressed, $fileSizeUncompressed)"
-}
+  id: Int,
+  url: String,
+  filename: String,
+  batchType: String,
+  startDate: LocalDateTime,
+  endDate: LocalDateTime,
+  fileSizeCompressed: Int,
+  fileSizeUncompressed: Int
+)
 
 /**
  * Trait for the Tiingo APIs News endpoint.
@@ -95,20 +88,20 @@ trait NewsEndpoint extends Endpoint {
    * @param tags    the list of tags to fetch news for.
    * @return a future of the list of news data.
    */
-  def getLatestNews(
-      tickers: Option[List[String]] = None,
-      tags: Option[List[String]] = None
+  def fetchLatestNews(
+    tickers: Option[List[String]] = None,
+    tags: Option[List[String]] = None
   ): Future[List[News]] = {
     val url: Uri = "https://api.tiingo.com/tiingo/news"
 
-    val key = config.apiKey.getOrElse(ClientUtils.sanitizeApiKey(None))
+    val key = config.apiKey.get
     val urlWithQuery = (tickers, tags) match {
       case (Some(tickers), Some(tags)) =>
         url.withQuery(
           Uri.Query(
             "tickers" -> tickers.mkString(","),
-            "tags"    -> tags.mkString(","),
-            "token"   -> key
+            "tags" -> tags.mkString(","),
+            "token" -> key
           )
         )
       case (Some(tickers), None) =>
@@ -132,12 +125,12 @@ trait NewsEndpoint extends Endpoint {
    * @param id the id of the bulk download to fetch.
    * @return a future of the list of bulk download data.
    */
-  def getBulkDownload(id: Option[String] = None): Future[List[BulkDownload]] = {
+  def fetchBulkDownload(id: Option[String] = None): Future[List[BulkDownload]] = {
     val url: Uri = "https://api.tiingo.com/tiingo/news/bulk_download"
-    val key      = config.apiKey.getOrElse(ClientUtils.sanitizeApiKey(None))
+    val key = config.apiKey.get
 
     val urlWithQuery = id match {
-      case Some(id) => url.withQuery(Uri.Query("id"    -> id, "token" -> key))
+      case Some(id) => url.withQuery(Uri.Query("id" -> id, "token" -> key))
       case None     => url.withQuery(Uri.Query("token" -> key))
     }
     logger.debug(s"Sending request to $url")
@@ -162,12 +155,12 @@ object NewsEndpoint {
    * @param sys  the actor system for the client.
    * @return a new instance of the NewsEndpoint.
    */
-  def apply(conf: TiingoConfig)(implicit sys: ActorSystem): NewsEndpoint =
+  def apply(conf: APIConfig)(implicit sys: ActorSystem): NewsEndpoint =
     new NewsEndpoint {
-      override val config: TiingoConfig                = conf
-      val system: ActorSystem                          = sys
-      override implicit val materializer: Materializer = Materializer(system)
-      override implicit val ec: ExecutionContext =
+      override val config: APIConfig = conf
+      val system: ActorSystem = sys
+      implicit override val materializer: Materializer = Materializer(system)
+      implicit override val ec: ExecutionContext =
         system.dispatcher
     }
 }

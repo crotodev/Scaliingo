@@ -17,22 +17,24 @@
 package io.github.crotodev.tiingo
 
 import endpoints._
-import utils.ClientUtils
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import spray.json.{ DefaultJsonProtocol, JsString, JsValue, RootJsonFormat }
+import io.github.crotodev.utils.DateTimeUtils
+import spray.json.{DefaultJsonProtocol, JsString, JsValue, RootJsonFormat}
 
-import java.time.{ LocalDate, LocalDateTime }
+import java.time.{LocalDate, LocalDateTime}
 
 /**
  * Object containing implicit JSON formats for the Tiingo API endpoint case classes.
  */
 object JsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
 
+  val dtUtils = DateTimeUtils()
+
   implicit object LocalDateJsonFormat extends RootJsonFormat[LocalDate] {
 
     override def read(json: JsValue): LocalDate =
-      ClientUtils.parseDate(json.convertTo[String]) match {
+      dtUtils.parseDate(json.convertTo[String]) match {
         case Left(error) => throw new Exception(error)
         case Right(date) => date
       }
@@ -43,7 +45,7 @@ object JsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
   implicit object LocalDateTimeJsonFormat extends RootJsonFormat[LocalDateTime] {
 
     override def read(json: JsValue): LocalDateTime =
-      ClientUtils.parseDateTime(json.convertTo[String]) match {
+      dtUtils.parseDateTime(json.convertTo[String]) match {
         case Left(error) => throw new Exception(error)
         case Right(date) => date
       }

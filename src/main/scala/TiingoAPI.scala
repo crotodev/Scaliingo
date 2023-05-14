@@ -17,37 +17,19 @@
 package io.github.crotodev.tiingo
 
 import endpoints._
-import utils.ClientUtils
+import models.APIConfig
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.model.HttpHeader
 import akka.stream.Materializer
-import io.github.crotodev.utils.HttpUtils._
 
-import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.concurrent.ExecutionContext
-
-/**
- * The case class representing the configuration for the Tiingo API.
- *
- * @param apiKey the API key for the Tiingo API.
- * @param headers the HTTP headers to be sent with the requests.
- * @param pause the duration to pause between requests.
- * @param timeout the duration to wait for a response before timing out.
- */
-case class TiingoConfig(
-    apiKey: Option[String] = None,
-    headers: List[HttpHeader] = Nil,
-    pause: FiniteDuration = 1.seconds,
-    timeout: FiniteDuration = 15.seconds
-)
 
 /**
  * The case class representing the Tiingo client used for fetching various data from the Tiingo API.
  *
  * @param config the configuration for the Tiingo API.
  */
-case class TiingoAPI(config: TiingoConfig)(implicit val system: ActorSystem)
+case class TiingoAPI(config: APIConfig)(implicit val system: ActorSystem)
     extends EODEndpoint
     with NewsEndpoint
     with CryptoEndpoint
@@ -57,12 +39,12 @@ case class TiingoAPI(config: TiingoConfig)(implicit val system: ActorSystem)
   /**
    * The implicit materializer used for materializing streams.
    */
-  override implicit val materializer: Materializer = Materializer(system)
+  implicit override val materializer: Materializer = Materializer(system)
 
   /**
    * The implicit execution context used for executing futures.
    */
-  override implicit val ec: ExecutionContext = system.dispatcher
+  implicit override val ec: ExecutionContext = system.dispatcher
 }
 
 /**
@@ -77,11 +59,9 @@ object TiingoAPI {
    * @param headers the HTTP headers to be sent with the requests.
    * @return a new instance of the TiingoAPI.
    */
-  def apply(apiKey: Option[String] = None, headers: Map[String, String] = Map.empty)(
-      implicit system: ActorSystem
+  def apply(apiKey: Option[String] = None, headers: Map[String, String] = Map.empty)(implicit
+    system: ActorSystem
   ): TiingoAPI = {
-    val heads = parseHeaders(headers)
-    val key   = ClientUtils.sanitizeApiKey(apiKey)
-    TiingoAPI(TiingoConfig(Some(key), heads))
+    TiingoAPI(APIConfig(apiKey, headers))
   }
 }

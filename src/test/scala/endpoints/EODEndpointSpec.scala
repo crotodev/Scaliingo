@@ -40,18 +40,21 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
 class EODEndpointSpec extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
-  implicit val system: ActorSystem  = ActorSystem("EODClientSpec")
+
+  import models.APIConfig
+
+  implicit val system: ActorSystem = ActorSystem("EODClientSpec")
   implicit val ec: ExecutionContext = system.dispatcher
 
-  val config = TiingoConfig(sys.env.get("TIINGO_API_KEY"), timeout = 30.seconds)
+  val config = APIConfig(sys.env.get("TIINGO_API_KEY"), timeout = 30.seconds)
   val client = EODEndpoint(config)
 
   val ticker = "GOOGL"
 
-  behavior of "EODClientSpec"
+  behavior.of("EODClientSpec")
 
-  it should "getTickerMeta" in {
-    client.getTickerMeta(ticker).onComplete(println)
+  it should "fetchTickerMeta" in {
+    client.fetchTickerMeta(ticker).onComplete(println)
   }
 
 }
