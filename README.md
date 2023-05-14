@@ -6,8 +6,6 @@ Scaliingo is a Scala client for interfacing with the Tiingo API. This robust lib
 
 Scaliingo offers a user-friendly and straightforward interface to retrieve market data, making it convenient for users to integrate Tiingo's financial data into their Scala applications. It incorporates support for asynchronous programming using Futures, ensuring non-blocking operations and enhancing the overall performance of applications.
 
-For more details about the Tiingo API, please refer to its [official documentation](https://api.tiingo.com/documentation).
-
 ## Key Features
 
 - Support all major Tiingo API endpoints: end-of-day, news, cryptocurrency, forex, fundamentals, and IEX data.
