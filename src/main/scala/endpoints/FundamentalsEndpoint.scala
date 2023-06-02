@@ -131,13 +131,15 @@ case class FundamentalsMeta(
  */
 trait FundamentalsEndpoint extends Endpoint {
 
+  private val baseUrl = "https://api.tiingo.com/tiingo/fundamentals"
+
   /**
    * Fetches the definitions of financial metrics.
    *
    * @return A future of a list of definitions.
    */
   def fetchDefinitions: Future[List[Definition]] = {
-    val url: Uri = "https://api.tiingo.com/tiingo/fundamentals/definitions"
+    val url: Uri = s"$baseUrl/definitions"
     val urlWithQuery = url.withQuery(
       Uri.Query(
         "token" -> config.apiKey.get
@@ -165,7 +167,7 @@ trait FundamentalsEndpoint extends Endpoint {
     startDate: Option[LocalDate] = None,
     endDate: Option[LocalDate] = None
   ): Future[List[StatementData]] = {
-    val url: Uri = s"https://api.tiingo.com/tiingo/$ticker/fundamentals/statements"
+    val url: Uri = s"$baseUrl/$ticker/statements"
     val key = config.apiKey.get
     val urlWithQuery = (startDate, endDate) match {
       case (Some(start), Some(end)) =>
@@ -208,7 +210,7 @@ trait FundamentalsEndpoint extends Endpoint {
    * @return A future of daily metrics.
    */
   def fetchDailyMetrics(ticker: String): Future[DailyMetrics] = {
-    val url: Uri = s"https://api.tiingo.com/tiingo/fundamentals/$ticker/daily"
+    val url: Uri = s"$baseUrl/$ticker/daily"
     val key = config.apiKey.get
     val urlWithQuery = url.withQuery(
       Uri.Query("token" -> key)
@@ -228,7 +230,7 @@ trait FundamentalsEndpoint extends Endpoint {
    * @return A future of a list of fundamentals meta data.
    */
   def fetchFundamentalsMeta: Future[List[FundamentalsMeta]] = {
-    val url: Uri = "https://api.tiingo.com/tiingo/fundamentals/meta"
+    val url: Uri = s"$baseUrl/meta"
     val key = config.apiKey.get
     val urlWithQuery = url.withQuery(
       Uri.Query("token" -> key)

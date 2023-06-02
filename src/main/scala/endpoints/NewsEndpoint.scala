@@ -81,6 +81,8 @@ case class BulkDownload(
  */
 trait NewsEndpoint extends Endpoint {
 
+  private val baseUrl = "https://api.tiingo.com/tiingo/news"
+
   /**
    * Fetches the latest news data from the Tiingo API.
    *
@@ -92,7 +94,7 @@ trait NewsEndpoint extends Endpoint {
     tickers: Option[List[String]] = None,
     tags: Option[List[String]] = None
   ): Future[List[News]] = {
-    val url: Uri = "https://api.tiingo.com/tiingo/news"
+    val url: Uri = baseUrl
 
     val key = config.apiKey.get
     val urlWithQuery = (tickers, tags) match {
@@ -126,7 +128,7 @@ trait NewsEndpoint extends Endpoint {
    * @return a future of the list of bulk download data.
    */
   def fetchBulkDownload(id: Option[String] = None): Future[List[BulkDownload]] = {
-    val url: Uri = "https://api.tiingo.com/tiingo/news/bulk_download"
+    val url: Uri = s"$baseUrl/bulk_download"
     val key = config.apiKey.get
 
     val urlWithQuery = id match {

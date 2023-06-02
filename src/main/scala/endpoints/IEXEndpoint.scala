@@ -93,7 +93,7 @@ case class IEXHistoricalPriceData(
  */
 trait IEXEndpoint extends Endpoint {
 
-  private val baseUri = "https://api.tiingo.com/iex"
+  private val baseUrl = "https://api.tiingo.com/iex"
 
   /**
    * Retrieves the last price data for the given ticker.
@@ -105,8 +105,8 @@ trait IEXEndpoint extends Endpoint {
     ticker: Option[String] = None
   ): Future[List[IEXLastPriceData]] = {
     val url: Uri = ticker match {
-      case Some(t) => s"https://api.tiingo.com/iex/$t"
-      case None    => baseUri
+      case Some(t) => s"$baseUrl/$t"
+      case None    => baseUrl
     }
     val urlWithQuery = url.withQuery(
       Uri.Query(
@@ -137,7 +137,7 @@ trait IEXEndpoint extends Endpoint {
     endDate: Option[String] = None,
     frequency: Option[String] = None
   ): Future[List[IEXHistoricalPriceData]] = {
-    val url: Uri = s"https://api.tiingo.com/iex/$ticker/prices"
+    val url: Uri = s"$baseUrl/$ticker/prices"
     val key = config.apiKey.get
     val urlWithQuery = url.withQuery(
       Uri.Query(

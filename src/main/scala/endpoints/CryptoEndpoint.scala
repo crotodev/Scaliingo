@@ -126,7 +126,7 @@ trait CryptoEndpoint extends Endpoint {
   def fetchCryptoMeta(
     tickers: Option[List[String]] = None
   ): Future[List[CryptoMeta]] = {
-    val url: Uri = s"$baseUrl"
+    val url: Uri = baseUrl
     val key = config.apiKey.get
 
     val urlWithQuery = tickers match {

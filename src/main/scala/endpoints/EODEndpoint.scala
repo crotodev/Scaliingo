@@ -85,10 +85,12 @@ case class EODPriceData(
  */
 trait EODEndpoint extends Endpoint {
 
+  private val baseUrl = "https://api.tiingo.com/tiingo/daily"
+
   def fetchTickerMeta(
     ticker: String
   ): Future[TickerMeta] = {
-    val url: Uri = s"https://api.tiingo.com/tiingo/daily/$ticker"
+    val url: Uri = s"$baseUrl/$ticker"
     val urlWithQuery = url.withQuery(
       Uri.Query(
         "token" -> config.apiKey.get
@@ -110,7 +112,7 @@ trait EODEndpoint extends Endpoint {
    * @return The future of the ticker metadata.
    */
   def fetchLatestTickerData(ticker: String): Future[EODPriceData] = {
-    val url: Uri = s"https://api.tiingo.com/tiingo/daily/$ticker/prices"
+    val url: Uri = s"$baseUrl/$ticker/prices"
     val urlWithQuery = url.withQuery(
       Uri.Query(
         "token" -> config.apiKey.get
@@ -140,7 +142,7 @@ trait EODEndpoint extends Endpoint {
   ): Future[List[EODPriceData]] = {
 
     val url: Uri =
-      s"https://api.tiingo.com/tiingo/daily/$ticker/prices?startDate=${startDate.get}&endDate=${endDate.get}"
+      s"$baseUrl/$ticker/prices?startDate=${startDate.get}&endDate=${endDate.get}"
     val urlWithQuery = url.withQuery(
       Uri.Query(
         "token" -> config.apiKey.get

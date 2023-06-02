@@ -38,6 +38,7 @@ trait Endpoint {
   implicit val materializer: Materializer
 
   implicit val ec: ExecutionContext
+
   protected val logger = LoggerFactory.getLogger(getClass)
 
   /**

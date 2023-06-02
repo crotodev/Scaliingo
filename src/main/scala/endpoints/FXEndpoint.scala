@@ -66,7 +66,7 @@ case class FXIntradayData(date: LocalDateTime, ticker: String, open: Double, hig
  */
 trait FXEndpoint extends Endpoint {
 
-  private val baseUri = "https://api.tiingo.com/tiingo/fx/"
+  private val baseUrl = "https://api.tiingo.com/tiingo/fx"
 
   /**
    * Fetches top forex data from the Tiingo API.
@@ -76,7 +76,7 @@ trait FXEndpoint extends Endpoint {
    */
   def fetchFXTopData(tickers: List[String]): Future[FXTopData] = {
 
-    val url: Uri = s"$baseUri/top"
+    val url: Uri = s"$baseUrl/top"
     val key = config.apiKey.get
     val urlWithQuery = url.withQuery(
       Uri.Query(
@@ -104,7 +104,7 @@ trait FXEndpoint extends Endpoint {
   ): Future[FXIntradayData] = {
 
     val url: Uri =
-      s"https://api.tiingo.com/tiingo/fx/$ticker/prices"
+      s"$baseUrl/$ticker/prices"
     val key = config.apiKey.get
 
     val params: Map[String, String] = startDate match {
