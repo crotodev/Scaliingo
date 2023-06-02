@@ -45,4 +45,8 @@ lazy val root = (project in file("."))
     sbtPlugin := true,
     publishMavenStyle := true
   )
-  .dependsOn(RootProject(uri("https://github.com/crotodev/utils-sc.git#45c1522fd2ec9ec86dec807604710641677138ce")))
+  .dependsOn(
+    RootProject(
+      uri("https://github.com/crotodev/utils-sc.git#45c1522fd2ec9ec86dec807604710641677138ce")
+    )
+  )
