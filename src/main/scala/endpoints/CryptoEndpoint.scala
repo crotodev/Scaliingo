@@ -101,7 +101,6 @@ trait CryptoEndpoint extends Endpoint {
   ): Future[List[CryptoPrice]] = {
 
     val url: Uri = s"$baseUrl/prices"
-    val key = config.apiKey.get
 
     val urlWithQuery = tickers match {
       case Some(t) =>
@@ -127,7 +126,6 @@ trait CryptoEndpoint extends Endpoint {
     tickers: Option[List[String]] = None
   ): Future[List[CryptoMeta]] = {
     val url: Uri = baseUrl
-    val key = config.apiKey.get
 
     val urlWithQuery = tickers match {
       case Some(t) =>
@@ -138,6 +136,7 @@ trait CryptoEndpoint extends Endpoint {
     logger.debug(s"Sending request to $url")
     get[List[CryptoMeta]](urlWithQuery, config.headers, config.pause, config.timeout)
   }
+
 }
 
 /**

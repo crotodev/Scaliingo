@@ -96,7 +96,6 @@ trait NewsEndpoint extends Endpoint {
   ): Future[List[News]] = {
     val url: Uri = baseUrl
 
-    val key = config.apiKey.get
     val urlWithQuery = (tickers, tags) match {
       case (Some(tickers), Some(tags)) =>
         url.withQuery(
@@ -129,7 +128,6 @@ trait NewsEndpoint extends Endpoint {
    */
   def fetchBulkDownload(id: Option[String] = None): Future[List[BulkDownload]] = {
     val url: Uri = s"$baseUrl/bulk_download"
-    val key = config.apiKey.get
 
     val urlWithQuery = id match {
       case Some(id) => url.withQuery(Uri.Query("id" -> id, "token" -> key))
@@ -160,8 +158,11 @@ object NewsEndpoint {
   def apply(conf: APIConfig)(implicit sys: ActorSystem): NewsEndpoint =
     new NewsEndpoint {
       override val config: APIConfig = conf
+
       val system: ActorSystem = sys
+
       implicit override val materializer: Materializer = Materializer(system)
+
       implicit override val ec: ExecutionContext =
         system.dispatcher
     }

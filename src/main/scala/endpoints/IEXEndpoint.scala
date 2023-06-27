@@ -110,7 +110,7 @@ trait IEXEndpoint extends Endpoint {
     }
     val urlWithQuery = url.withQuery(
       Uri.Query(
-        "token" -> config.apiKey.get
+        "token" -> key
       )
     )
     logger.debug(s"Sending request to $url")
@@ -138,7 +138,6 @@ trait IEXEndpoint extends Endpoint {
     frequency: Option[String] = None
   ): Future[List[IEXHistoricalPriceData]] = {
     val url: Uri = s"$baseUrl/$ticker/prices"
-    val key = config.apiKey.get
     val urlWithQuery = url.withQuery(
       Uri.Query(
         "token" -> key,

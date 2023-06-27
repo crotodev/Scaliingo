@@ -77,7 +77,6 @@ trait FXEndpoint extends Endpoint {
   def fetchFXTopData(tickers: List[String]): Future[FXTopData] = {
 
     val url: Uri = s"$baseUrl/top"
-    val key = config.apiKey.get
     val urlWithQuery = url.withQuery(
       Uri.Query(
         "tickers" -> tickers.mkString(","),
@@ -105,7 +104,6 @@ trait FXEndpoint extends Endpoint {
 
     val url: Uri =
       s"$baseUrl/$ticker/prices"
-    val key = config.apiKey.get
 
     val params: Map[String, String] = startDate match {
       case Some(_) =>

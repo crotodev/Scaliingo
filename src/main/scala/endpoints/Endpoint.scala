@@ -33,6 +33,8 @@ trait Endpoint {
 
   val config: APIConfig
 
+  protected val key: String = config.apiKey.get
+
   implicit val system: ActorSystem
 
   implicit val materializer: Materializer

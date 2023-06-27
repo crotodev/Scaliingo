@@ -93,7 +93,7 @@ trait EODEndpoint extends Endpoint {
     val url: Uri = s"$baseUrl/$ticker"
     val urlWithQuery = url.withQuery(
       Uri.Query(
-        "token" -> config.apiKey.get
+        "token" -> key
       )
     )
     logger.debug(s"Sending request to $url")
@@ -115,7 +115,7 @@ trait EODEndpoint extends Endpoint {
     val url: Uri = s"$baseUrl/$ticker/prices"
     val urlWithQuery = url.withQuery(
       Uri.Query(
-        "token" -> config.apiKey.get
+        "token" -> key
       )
     )
     logger.info(s"Sending request to $url")
@@ -145,7 +145,7 @@ trait EODEndpoint extends Endpoint {
       s"$baseUrl/$ticker/prices?startDate=${startDate.get}&endDate=${endDate.get}"
     val urlWithQuery = url.withQuery(
       Uri.Query(
-        "token" -> config.apiKey.get
+        "token" -> key
       )
     )
     logger.debug(s"Sending request to $url")
