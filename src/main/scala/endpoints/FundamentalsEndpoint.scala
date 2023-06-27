@@ -142,7 +142,7 @@ trait FundamentalsEndpoint extends Endpoint {
     val url: Uri = s"$baseUrl/definitions"
     val urlWithQuery = url.withQuery(
       Uri.Query(
-        "token" -> config.apiKey.get
+        "token" -> key
       )
     )
     logger.debug(s"Sending request to $url")
@@ -231,7 +231,6 @@ trait FundamentalsEndpoint extends Endpoint {
    */
   def fetchFundamentalsMeta: Future[List[FundamentalsMeta]] = {
     val url: Uri = s"$baseUrl/meta"
-    val key = config.apiKey.get
     val urlWithQuery = url.withQuery(
       Uri.Query("token" -> key)
     )
