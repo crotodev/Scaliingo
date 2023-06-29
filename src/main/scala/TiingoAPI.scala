@@ -31,12 +31,7 @@ import scala.concurrent.ExecutionContext
  */
 case class TiingoAPI(config: APIConfig)(implicit val system: ActorSystem)
     extends EODEndpoint
-    with NewsEndpoint
-    with CryptoEndpoint
-    with FXEndpoint
-    with IEXEndpoint
-    with FundamentalsEndpoint {
-  import java.time.LocalDate
+    with IEXEndpoint {
 
   /**
    * The implicit materializer used for materializing streams.
@@ -48,34 +43,6 @@ case class TiingoAPI(config: APIConfig)(implicit val system: ActorSystem)
    */
   implicit override val ec: ExecutionContext = system.dispatcher
 
-// Series of overrides to mark methods as not implemented.
-
-//  Not implemented for the CryptoEndpoint
-  override def fetchCryptoMeta(tickers: Option[List[String]]) = ???
-
-  override def fetchLatestCryptoData(tickers: Option[List[String]]) = ???
-
-  //  Not implemented for the FundamentalsEndpoint
-
-  override def fetchDailyMetrics(ticker: String) = ???
-
-  override def fetchFundamentalsMeta = ???
-
-  override def fetchDefinitions = ???
-
-  override def fetchStatementData(ticker: String,
-                                  startDate: Option[LocalDate],
-                                  endDate: Option[LocalDate]
-  ) = ???
-
-  //  Not implemented for the FXEndpoint
-  override def fetchFXTopData(tickers: List[String]) = ???
-  override def fetchFXIntradayData(ticker: String, startDate: Option[LocalDate], frequency: Option[String]) = ???
-
-  //  Not implemented for the NewsEndpoint
-  override def fetchLatestNews(tickers: Option[List[String]], tags: Option[List[String]]) = ???
-
-  override def fetchBulkDownload(id: Option[String]) = ???
 }
 
 /**
