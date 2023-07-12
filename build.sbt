@@ -1,6 +1,3 @@
-val akkaVersion     = "2.8.0"
-val akkaHttpVersion = "10.5.1"
-
 lazy val root = (project in file("."))
   .settings(
     name := "scaliingo",
@@ -11,8 +8,8 @@ lazy val root = (project in file("."))
     maxErrors := 3,
     startYear := Some(2023),
     libraryDependencies ++= Seq(
-      "ch.qos.logback"    % "logback-classic"           % "1.4.7",
-      "org.scalatest"     %% "scalatest"                % "3.2.15" % Test
+      "ch.qos.logback" % "logback-classic" % "1.4.7",
+      "org.scalatest" %% "scalatest" % "3.2.15" % Test
     ),
     scalacOptions ++= Seq(
       "-deprecation",
@@ -33,6 +30,5 @@ lazy val root = (project in file("."))
     semanticdbEnabled := true,
     onChangedBuildSource := ReloadOnSourceChanges,
     sbtPlugin := true,
-    publishMavenStyle := true,
-
+    publishMavenStyle := true
   )
