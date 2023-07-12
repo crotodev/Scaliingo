@@ -10,17 +10,8 @@ lazy val root = (project in file("."))
     scalaVersion := "2.12.17",
     maxErrors := 3,
     startYear := Some(2023),
-    idePackagePrefix := Some("io.github.crotodev.tiingo"),
     libraryDependencies ++= Seq(
-      "com.joestelmach"   % "natty"                     % "0.13",
-      "com.typesafe"      % "config"                    % "1.4.2",
       "ch.qos.logback"    % "logback-classic"           % "1.4.7",
-      "com.typesafe.akka" %% "akka-stream"              % akkaVersion,
-      "com.typesafe.akka" %% "akka-http"                % akkaHttpVersion,
-      "com.typesafe.akka" %% "akka-http-spray-json"     % akkaHttpVersion,
-      "com.typesafe.akka" %% "akka-http-testkit"        % akkaHttpVersion % Test,
-      "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaVersion % Test,
-      "com.typesafe.akka" %% "akka-stream-testkit"      % akkaVersion % Test,
       "org.scalatest"     %% "scalatest"                % "3.2.15" % Test
     ),
     scalacOptions ++= Seq(
@@ -41,9 +32,7 @@ lazy val root = (project in file("."))
     },
     semanticdbEnabled := true,
     onChangedBuildSource := ReloadOnSourceChanges,
-    excludeLintKeys += idePackagePrefix,
     sbtPlugin := true,
     publishMavenStyle := true,
 
   )
-  .dependsOn(RootProject(uri("https://github.com/crotodev/utils-sc.git")))

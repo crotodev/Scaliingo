@@ -16,33 +16,6 @@ Scaliingo offers a user-friendly and straightforward interface to retrieve marke
 
 Scaliingo is an excellent resource for developers seeking reliable and current financial information from the Tiingo platform. This open-source tool is available under the Apache License, Version 2.0, and welcomes contributions from developers. Whether you're creating an algorithmic trading bot, a financial data analytics tool, or a basic stock tracking app, the client is an ideal choice for your needs. With its user-friendly design and comprehensive features, Scaliingo is a must-have resource for any developer looking to stay ahead in finance.
 
-## Usage
-
-```scala
-import akka.actor.ActorSystem
-import com.crotodev.tiingo.TiingoAPI
-
-object Main extends App {
-  implicit val system: ActorSystem = ActorSystem("scaliingo-demo")
-
-  // Replace "your-api-key" with your actual Tiingo API key
-  val client = TiingoAPI(apiKey = Some("your-api-key"))
-
-  client.getLatestTickerData("AAPL").onComplete { response =>
-    response match {
-      case Success(eodData) =>
-        println("End-of-Day Data for AAPL:")
-        eodData.foreach(println)
-
-      case Failure(exception) =>
-        println(s"Error fetching EOD data: ${exception.getMessage}")
-    }
-    system.terminate()
-  }
-}
-
-```
-
 ## License
 
 This project is licensed under the Apache License, Version 2.0. For more information, please refer to the `LICENSE` file in the project root.
