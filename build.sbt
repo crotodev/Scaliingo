@@ -1,3 +1,5 @@
+val akkaHttpVersion = "10.5.1"
+
 lazy val root = (project in file("."))
   .settings(
     name := "scaliingo",
@@ -8,6 +10,9 @@ lazy val root = (project in file("."))
     maxErrors := 3,
     startYear := Some(2023),
     libraryDependencies ++= Seq(
+      "org.typelevel" %% "cats-core" % "2.9.0",
+      "com.typesafe" % "config" % "1.4.2",
+      "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
       "ch.qos.logback" % "logback-classic" % "1.4.7",
       "org.scalatest" %% "scalatest" % "3.2.15" % Test
     ),
